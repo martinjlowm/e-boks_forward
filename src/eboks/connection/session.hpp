@@ -25,22 +25,27 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef EBOKS_SESSION_HPP_
-#define EBOKS_SESSION_HPP_
+#ifndef EBOKS_CONNECTION_SESSION_HPP_
+#define EBOKS_CONNECTION_SESSION_HPP_
 
 #include <string>
 
 namespace eBoks {
+namespace Connection {
+
+class Handler;
 
 class Session {
  public:
-  std::string id() const;
-  void set_id(std::string const &id);
+  explicit Session(Handler *handler);
+
+  std::string GenerateChallenge(const std::string &timestamp);
 
  private:
-  std::string id_;
+  Handler *handler_;
 };
 
+}  // namespace Connection
 }  // namespace eBoks
 
-#endif  // EBOKS_SESSION_HPP_
+#endif  // EBOKS_CONNECTION_SESSION_HPP_

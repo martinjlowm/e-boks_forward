@@ -7,8 +7,10 @@
 //   VALUE cClient = rb_define_class_under(eBoks_, "Client", rb_cObject);
 
 //   rb_define_method(cClient, "initialize", this->Initialize, 0);
-//   rb_define_method(cClient, "set_credentials", this->SetCredentials, 6);
-//   rb_define_method(cClient, "connect", this->Connect, 0);
+//   rb_define_method(cClient, "set_nation", this->SetNation, 1);
+//   rb_define_method(cClient, "set_identity_type", this->SetIdentityType, 1);
+//   rb_define_method(cClient, "set_credentials", this->SetCredentials, 3);
+//   rb_define_method(cClient, "login", this->Login, 0);
 //   rb_define_method(cClient, "fetch_inbox", this->FetchInbox, -1);
 
 
@@ -28,10 +30,8 @@
 // }
 
 // VALUE
-// Wrappers::Ruby::Wrapper::SetCredentials(VALUE self, VALUE name,
+// Wrappers::Ruby::Wrapper::SetCredentials(VALUE self,
 //                                         VALUE person_number,
-//                                         VALUE identity_type,
-//                                         VALUE nationality,
 //                                         VALUE passphrase,
 //                                         VALUE activation_code)
 // {

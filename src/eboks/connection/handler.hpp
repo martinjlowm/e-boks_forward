@@ -28,27 +28,42 @@
 #ifndef EBOKS_CONNECTION_HANDLER_HPP_
 #define EBOKS_CONNECTION_HANDLER_HPP_
 
+#include <curl/curl.h>
+
 #include <string>
 
-#include "eboks/application.hpp"
-#include "eboks/logon.hpp"
-#include "eboks/user.hpp"
+#include "eboks/connection/request_builder.hpp"
+#include "eboks/connection/response_parser.hpp"
+#include "eboks/connection/session.hpp"
+#include "eboks/connection/uri_builder.hpp"
 
 namespace eBoks {
 
-class ConnectionHandler {
- public:
-  ConnectionHandler(Application app, User user);
+class Application;
 
-  std::string AuthenticationHeader();
-  std::string AuthenticationBody();
+namespace Connection {
+
+class Handler {
+ public:
+  explicit Handler(Application *app);
+
+  Application* app() const;
+  Session session() const;
+
+  void Login();
 
  private:
-  Application app_;
-  Logon logon_;
-  User user_;
+  Application *app_;
+
+  CURL *curl_;
+  URIBuilder uri_;
+
+  Session session_;
+  RequestBuilder request_builder_;
+  ResponseParser response_parser_;
 };
 
+}  // namespace Connection
 }  // namespace eBoks
 
 #endif  // EBOKS_CONNECTION_HANDLER_HPP_

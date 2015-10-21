@@ -25,49 +25,38 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef EBOKS_USER_HPP_
-#define EBOKS_USER_HPP_
+#ifndef EBOKS_CONSTANTS_HPP_
+#define EBOKS_CONSTANTS_HPP_
 
 #include <string>
 
-#include "eboks/identity.hpp"
-#include "eboks/xml_constructor.hpp"
-
 namespace eBoks {
 
-class User : public XMLConstructor {
- public:
-  User();
-  User(std::string identity_number, std::string identity_type, std::string nationality,
-       std::string passphrase, std::string activation_code);
+// Fake device ID
+const std::string kFakeDeviceID = "0008baadcafef00d";
 
-  std::string activation_code() const;
-  void set_activation_code(std::string const &activation_code);
+const std::string kEBoksAuthenticate = "X-EBOKS-AUTHENTICATE";
 
-  std::string name() const;
-  void set_name(std::string const &name);
+// URI parts
+const std::string kURISplitter = "/";
+const std::string kProtocolScheme = "https";
+const std::string kBaseURI = "rest.e-boks.dk";
+const std::string kServiceType = "mobile";
+// Not sure what this identifier is used for.
+const std::string kUnknownIdentifier = "1";
+const std::string kXMLService = "xml.svc";
+const std::string kLocaleTag = "en-gb";
+const std::string kSession = "session";
 
-  std::string passphrase() const;
-  void set_passphrase(std::string const &passphrase);
-
-  bool IsShared();
-
-  Identity identity() const;
-  void set_identity(Identity const &identity);
-
-  void AddXML(pugi::xml_node parent);
-
- private:
-  int id_;
-  int secondary_id_;
-  std::string activation_code_;
-  std::string name_;
-  std::string passphrase_;
-  bool shared_;
-
-  Identity identity_;
-};
+// HTTP/1.1 methods
+const std::string kGET = "GET";
+const std::string kPOST = "POST";
+const std::string kPUT = "PUT";
+const std::string kHEAD = "HEAD";
+const std::string kDELETE = "DELETE";
+const std::string kTRACE = "TRACE";
+const std::string kCONNECT = "CONNECT";
 
 }  // namespace eBoks
 
-#endif  // EBOKS_USER_HPP_
+#endif  // EBOKS_CONSTANTS_HPP_

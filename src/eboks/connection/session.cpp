@@ -25,49 +25,44 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef EBOKS_USER_HPP_
-#define EBOKS_USER_HPP_
+#include "eboks/connection/session.hpp"
 
+#include <openssl/sha.h>
+
+#include <sstream>
 #include <string>
 
-#include "eboks/identity.hpp"
-#include "eboks/xml_constructor.hpp"
+#include "eboks/application.hpp"
+#include "eboks/connection/handler.hpp"
 
-namespace eBoks {
+eBoks::Connection::Session::Session(eBoks::Connection::Handler *handler)
+    : handler_(handler) {}
 
-class User : public XMLConstructor {
- public:
-  User();
-  User(std::string identity_number, std::string identity_type, std::string nationality,
-       std::string passphrase, std::string activation_code);
 
-  std::string activation_code() const;
-  void set_activation_code(std::string const &activation_code);
+std::string
+eBoks::Connection::Session::GenerateChallenge(const std::string &timestamp) {
+  std::stringstream initial_challenge;
 
-  std::string name() const;
-  void set_name(std::string const &name);
+  initial_challenge << handler_->app()->user().activation_code() << ":";
+  initial_challenge << handler_->app()->device_id() << ":";
+  initial_challenge << handler_->app()->user().identity().type() << ":";
+  initial_challenge << handler_->app()->user().identity().number() << ":";
+  initial_challenge << handler_->app()->user().identity().nationality() << ":";
+  initial_challenge << handler_->app()->user().passphrase() << ":";
+  initial_challenge << timestamp;
 
-  std::string passphrase() const;
-  void set_passphrase(std::string const &passphrase);
+  first = hashlib.sha256(challenge).hexdigest()
+second = hashlib.sha256(first).hexdigest()
+  return xml_body_stream.str();
+}
 
-  bool IsShared();
 
-  Identity identity() const;
-  void set_identity(Identity const &identity);
+void eBoks::Connection::Handler::Login() {
+  request_builder_.At(uri_.Login().Build());
+  request_builder_.WithLoginHeader(app_.device_id());
+  request_builder_.As(kPUT);
+  request_builder_.WithLoginBody(logon_, app_, &app_.user());
+  request_builder_.Build();
 
-  void AddXML(pugi::xml_node parent);
-
- private:
-  int id_;
-  int secondary_id_;
-  std::string activation_code_;
-  std::string name_;
-  std::string passphrase_;
-  bool shared_;
-
-  Identity identity_;
-};
-
-}  // namespace eBoks
-
-#endif  // EBOKS_USER_HPP_
+  request_builder_.header()
+}

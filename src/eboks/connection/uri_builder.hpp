@@ -25,49 +25,36 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef EBOKS_USER_HPP_
-#define EBOKS_USER_HPP_
+#ifndef EBOKS_CONNECTION_URI_BUILDER_HPP_
+#define EBOKS_CONNECTION_URI_BUILDER_HPP_
 
+#include <sstream>
 #include <string>
 
-#include "eboks/identity.hpp"
-#include "eboks/xml_constructor.hpp"
+#include "eboks/constants.hpp"
 
 namespace eBoks {
+namespace Connection {
 
-class User : public XMLConstructor {
+class URIBuilder {
  public:
-  User();
-  User(std::string identity_number, std::string identity_type, std::string nationality,
-       std::string passphrase, std::string activation_code);
+  URIBuilder();
 
-  std::string activation_code() const;
-  void set_activation_code(std::string const &activation_code);
+  URIBuilder& Login();
 
-  std::string name() const;
-  void set_name(std::string const &name);
-
-  std::string passphrase() const;
-  void set_passphrase(std::string const &passphrase);
-
-  bool IsShared();
-
-  Identity identity() const;
-  void set_identity(Identity const &identity);
-
-  void AddXML(pugi::xml_node parent);
+  std::string Build();
 
  private:
-  int id_;
-  int secondary_id_;
-  std::string activation_code_;
-  std::string name_;
-  std::string passphrase_;
-  bool shared_;
+  class ServiceURIStream : public std::stringstream {
+   public:
+    void Append(const std::string& string);
+  };
 
-  Identity identity_;
+  ServiceURIStream service_uri_;
+  std::string uri_;
 };
 
+}  // namespace Connection
 }  // namespace eBoks
 
-#endif  // EBOKS_USER_HPP_
+#endif  // EBOKS_CONNECTION_URI_BUILDER_HPP_

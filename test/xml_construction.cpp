@@ -30,24 +30,37 @@
 #include "pugixml.hpp"
 
 #include "eboks/application.hpp"
-#include "eboks/connection_handler.hpp"
+#include "eboks/connection/handler.hpp"
 #include "eboks/user.hpp"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+#ifdef _WIN32_
+#include <windows.h>
+#else
+#include <sys/utsname.h>
+#ifdef _APPLE_
+#include <CoreServices/CoreServices.h>
+#else
+#include <fstream>
+#endif  // _APPLE_
+#endif  // _WIN32_
 
 class XMLConstructionTest : public testing::Test {
  public:
   pugi::xml_document doc_;
   std::stringstream xml_string_;
 
+  std::string machine_;
+  std::string os_;
+  std::string os_version_;
+
   XMLConstructionTest() {}
 
   virtual ~XMLConstructionTest() {}
 
-  virtual void SetUp() {
-  }
+  virtual void SetUp() {}
 
   virtual void TearDown() {
     xml_string_.str("");
@@ -55,17 +68,25 @@ class XMLConstructionTest : public testing::Test {
 };
 
 TEST_F(XMLConstructionTest, GenerateValidApplicationXMLString) {
-  std::string device = "A0001";
-  std::string os = "Android";
-  std::string os_version = "5.1.1";
   std::string app_version = "1.5.0";
 
-  eBoks::Application app(device, os, os_version, app_version);
+  eBoks::Application app = eBoks::Application();
 
-  app.ToXML(doc_);
+  app.AddXML(doc_);
   doc_.print(xml_string_);
 
-  ASSERT_EQ("<App Device=\"A0001\" os=\"Android\" osVersion=\"5.1.1\" version=\"1.5.0\" />\n", xml_string_.str());
+  std::stringstream expected_string;
+  expected_string << "<App Device=\"";
+  expected_string << app.device();
+  expected_string << "\" os=\"";
+  expected_string << app.os();
+  expected_string << "\" osVersion=\"";
+  expected_string << app.os_version();
+  expected_string << "\" version=\"";
+  expected_string << app_version;
+  expected_string << "\" />\n";
+
+  ASSERT_EQ(expected_string.str(), xml_string_.str());
 }
 
 TEST_F(XMLConstructionTest, GenerateValidUserXMLString) {
@@ -75,34 +96,38 @@ TEST_F(XMLConstructionTest, GenerateValidUserXMLString) {
   std::string passphrase = "1a2b3c4d5e";
   std::string activation_code = "1234AbCd";
 
-  eBoks::User user(identity_number, identity_type, nationality,
-                   passphrase, activation_code);
+  eBoks::Application app = eBoks::Application();
+  app.SetNation(nationality);
+  app.SetIdentityType(identity_type);
 
-  user.ToXML(doc_);
+  app.SetCredentials(identity_number, passphrase, activation_code);
+
+  app.user().AddXML(doc_);
   doc_.print(xml_string_);
 
-  ASSERT_EQ("<User identity=\"1234567890\" identityType=\"P\" nationality=\"DK\" pincode=\"1a2b3c4d5e\" />\n", xml_string_.str());
+  std::stringstream expected_string;
+  expected_string << "<User identity=\"1234567890\" ";
+  expected_string <<       "identityType=\"P\" ";
+  expected_string <<       "nationality=\"DK\" ";
+  expected_string <<       "pincode=\"1a2b3c4d5e\" />\n";
+
+  ASSERT_EQ(expected_string.str(), xml_string_.str());
 }
 
 TEST_F(XMLConstructionTest, GenerateValidLogonXMLString) {
-  std::string device = "A0001";
-  std::string os = "Android";
-  std::string os_version = "5.1.1";
-  std::string app_version = "1.5.0";
-
-  eBoks::Application app(device, os, os_version, app_version);
-
-  std::string identity_number = "1234567890";
   std::string identity_type = "P";
   std::string nationality = "DK";
+  std::string identity_number = "1234567890";
   std::string passphrase = "1a2b3c4d5e";
   std::string activation_code = "1234AbCd";
 
-  eBoks::User user(identity_number, identity_type, nationality,
-                   passphrase, activation_code);
+  eBoks::Application app = eBoks::Application();
+  app.SetNation(nationality);
+  app.SetIdentityType(identity_type);
 
-  eBoks::ConnectionHandler handler(app, user);
+  app.SetCredentials(identity_number, passphrase, activation_code);
 
+  eBoks::Connection::Handler handler = app.handler();
   std::string xml_string = handler.GenerateAuthenticationBody();
 
   std::stringstream expected_string;

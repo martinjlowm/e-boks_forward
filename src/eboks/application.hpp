@@ -30,34 +30,57 @@
 
 #include <string>
 
+#include "eboks/connection/handler.hpp"
+#include "eboks/time_manager.hpp"
+#include "eboks/user.hpp"
 #include "eboks/xml_constructor.hpp"
 
 namespace eBoks {
+
 class Application : public XMLConstructor {
  public:
-  Application(std::string device, std::string os, std::string os_version,
-              std::string app_version);
+  Application();
 
   std::string device() const;
-  void set_device(std::string const &device);
+  std::string device_id() const;
+  void DetermineDevice();
 
   std::string os() const;
-  void set_os(std::string const &os);
-
   std::string os_version() const;
-  void set_os_version(std::string const &os_version);
+  void DetermineOS();
 
   std::string version() const;
   void set_version(std::string const &version);
 
+  User user() const;
+  Logon logon() const;
+  Connection::Handler handler() const;
+
   void AddXML(pugi::xml_node parent);
+
+  // Configuration
+  void SetNation(std::string const &nation);
+  void SetIdentityType(std::string const &identity_type);
+  void SetCredentials(std::string const &identity_number,
+                      std::string const &passphrase,
+                      std::string const &activation_code);
+
+  // Actions
+  void Connect();
 
  private:
   std::string device_;  // e.g. A0001 (OnePlus One)
+  std::string device_id_;  // e.g. Settings.Secure#ANDROID_ID
   std::string os_;  // e.g. Android
   std::string os_version_;  // e.g. 5.1.1
   std::string version_;  // e.g. e-Boks 1.5.0
+
+  User user_;
+  Logon logon_;
+  TimeManager time_manager;
+  Connection::Handler handler_;
 };
+
 }  // namespace eBoks
 
 #endif  // EBOKS_APPLICATION_HPP_

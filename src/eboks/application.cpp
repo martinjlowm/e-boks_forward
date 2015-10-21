@@ -27,39 +27,107 @@
 
 #include "eboks/application.hpp"
 
+#ifdef _WIN32_
+#include <windows.h>
+#else
+#include <sys/utsname.h>
+#ifdef _APPLE_
+#include <CoreServices/CoreServices.h>
+#else
+#include <fstream>
+#endif
+#endif
+
 #include <iostream>
+#include <sstream>
+#include <stdexcept>
 #include <string>
 
 
 // Constructors
-eBoks::Application::Application(std::string device, std::string os,
-                                std::string os_version,
-                                std::string app_version)
-    : device_(device),
-      os_(os),
-      os_version_(os_version),
-      version_(app_version) {}
+eBoks::Application::Application()
+    : user_(), logon_(), handler_(this) {
+  DetermineDevice();
+  device_id_ = kFakeDeviceID;
+  DetermineOS();
+  version_ = "1.5.0";  // Hardcode version for now.
+}
 
 // Accessors and mutators
 std::string eBoks::Application::device() const { return device_; }
-void eBoks::Application::set_device(std::string const &device) {
-  device_ = device;
+std::string eBoks::Application::device_id() const { return device_id_; }
+void eBoks::Application::DetermineDevice() {
+  std::string machine;
+#ifdef _WIN32_
+  SYSTEM_INFO system_info;
+
+  GetSystemInfo(&system_info);
+  machine = system_info.dwProcessorType;
+#else
+  struct utsname system_info;
+
+  uname(&system_info);
+  machine = system_info.machine;
+#endif
+
+  device_ = machine;
 }
 
 std::string eBoks::Application::os() const { return os_; }
-void eBoks::Application::set_os(std::string const &os) {
-  os_ = os;
-}
-
 std::string eBoks::Application::os_version() const { return os_version_; }
-void eBoks::Application::set_os_version(std::string const &os_version) {
-  os_version_ = os_version;
+void eBoks::Application::DetermineOS() {
+  std::stringstream version_stream;
+#ifdef _WIN32_
+  OSVERSIONINFO osvi;
+  BOOL bIsWindowsXPorLater;
+
+  ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+  osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+
+  GetVersionEx(&osvi);
+
+  version_stream << osvi.dwMajorVersion;
+  version_stream << ".";
+  version_stream << osvi.dwMinorVersion;
+
+  os_ = "Windows";
+  os_version_ = version_stream.str();
+
+#elif _APPLE_
+  SInt32 major_version, minor_version, bugfix_version;
+
+  Gestalt(gestaltSystemVersionMajor, &major_version);
+  Gestalt(gestaltSystemVersionMinor, &minor_version);
+  Gestalt(gestaltSystemVersionBugFix, &bugfix_version);
+
+  version_stream << major_version;
+  version_stream << ".";
+  version_stream << minor_version;
+  version_stream << ".";
+  version_stream << bugfix_version;
+
+  os_ = "OS X";
+  os_version_ = version_stream.str();
+#else
+  // Support Linux
+  // std::ifstream f("/bin/lsb_release");
+  // if (f.good()) {
+
+  // }
+  // f = "/etc/os-release";
+  os_ = "Linux";
+  os_version_ = "x.x.x";
+#endif
 }
 
 std::string eBoks::Application::version() const { return version_; }
 void eBoks::Application::set_version(std::string const &version) {
   version_ = version;
 }
+
+eBoks::Logon eBoks::Application::logon() const { return logon_; }
+eBoks::User eBoks::Application::user() const { return user_; }
+eBoks::Connection::Handler eBoks::Application::handler() const { return handler_; }
 
 void eBoks::Application::AddXML(pugi::xml_node parent) {
   pugi::xml_node node = parent.append_child("App");
@@ -68,4 +136,33 @@ void eBoks::Application::AddXML(pugi::xml_node parent) {
   node.append_attribute("os") = os().c_str();
   node.append_attribute("osVersion") = os_version().c_str();
   node.append_attribute("version") = version().c_str();
+}
+
+void eBoks::Application::SetNation(std::string const &nation) {
+  try {
+    user_.identity().set_nationality(nation);
+  } catch (const std::invalid_argument &e) {
+    std::cerr << "Invalid argument: " << e.what() << "\n";
+  }
+}
+
+void eBoks::Application::SetIdentityType(std::string const &type) {
+  try {
+    user_.identity().set_type(type);
+  } catch (const std::invalid_argument &e) {
+    std::cerr << "Invalid argument: " << e.what() << "\n";
+  }
+}
+
+void eBoks::Application::SetCredentials(std::string const &identity_number,
+                                        std::string const &passphrase,
+                                        std::string const &activation_code) {
+  try {
+    user_.identity().set_number(identity_number);
+  } catch (const std::invalid_argument &e) {
+    std::cerr << "Invalid argument: " << e.what() << "\n";
+  }
+
+  user_.set_passphrase(passphrase);
+  user_.set_activation_code(activation_code);
 }

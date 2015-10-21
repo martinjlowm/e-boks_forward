@@ -25,49 +25,23 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef EBOKS_USER_HPP_
-#define EBOKS_USER_HPP_
+#ifndef EBOKS_CRYPTOGRAPHIC_MANAGER_HPP_
+#define EBOKS_CRYPTOGRAPHIC_MANAGER_HPP_
 
 #include <string>
 
-#include "eboks/identity.hpp"
-#include "eboks/xml_constructor.hpp"
-
 namespace eBoks {
 
-class User : public XMLConstructor {
+class CryptographicManager {
  public:
-  User();
-  User(std::string identity_number, std::string identity_type, std::string nationality,
-       std::string passphrase, std::string activation_code);
+  CryptographicManager();
 
-  std::string activation_code() const;
-  void set_activation_code(std::string const &activation_code);
-
-  std::string name() const;
-  void set_name(std::string const &name);
-
-  std::string passphrase() const;
-  void set_passphrase(std::string const &passphrase);
-
-  bool IsShared();
-
-  Identity identity() const;
-  void set_identity(Identity const &identity);
-
-  void AddXML(pugi::xml_node parent);
+  std::string SHA256(const std::string string) const;
 
  private:
-  int id_;
-  int secondary_id_;
-  std::string activation_code_;
-  std::string name_;
-  std::string passphrase_;
-  bool shared_;
 
-  Identity identity_;
 };
 
 }  // namespace eBoks
 
-#endif  // EBOKS_USER_HPP_
+#endif  // EBOKS_CRYPTOGRAPHIC_MANAGER_HPP_

@@ -36,15 +36,8 @@
 eBoks::Identity::Identity() {}
 
 eBoks::Identity::Identity(std::string number, std::string type,
-                          std::string nationality) {
-  try {
-    set_type(type);
-    set_number(number);
-    set_nationality(nationality);
-  } catch (const std::invalid_argument &e) {
-    std::cerr << "Invalid argument: " << e.what() << "\n";
-  }
-}
+                          std::string nationality)
+    : nationality_(nationality), number_(number), type_(type) {}
 
 // Accessors and mutators
 std::string eBoks::Identity::nationality() const { return nationality_; }

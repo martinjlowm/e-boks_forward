@@ -25,49 +25,50 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef EBOKS_USER_HPP_
-#define EBOKS_USER_HPP_
+#include "eboks/connection/uri_builder.hpp"
 
+#include <sstream>
 #include <string>
 
-#include "eboks/identity.hpp"
-#include "eboks/xml_constructor.hpp"
 
-namespace eBoks {
+eBoks::Connection::URIBuilder::URIBuilder() {
+  std::stringstream uri_string_stream;
 
-class User : public XMLConstructor {
- public:
-  User();
-  User(std::string identity_number, std::string identity_type, std::string nationality,
-       std::string passphrase, std::string activation_code);
+  // kProtocolScheme://kBaseURI/kServiceType/kUnknownIdentifier/kXMLService/kLocaleTag/
+  uri_string_stream << kProtocolScheme;
+  uri_string_stream << "://";
+  uri_string_stream << kBaseURI;
+  uri_string_stream << kURISplitter;
 
-  std::string activation_code() const;
-  void set_activation_code(std::string const &activation_code);
+  uri_string_stream << kServiceType;
+  uri_string_stream << kURISplitter;
 
-  std::string name() const;
-  void set_name(std::string const &name);
+  uri_string_stream << kUnknownIdentifier;
+  uri_string_stream << kURISplitter;
 
-  std::string passphrase() const;
-  void set_passphrase(std::string const &passphrase);
+  uri_string_stream << kXMLService;
+  uri_string_stream << kURISplitter;
 
-  bool IsShared();
+  uri_string_stream << kLocaleTag;
 
-  Identity identity() const;
-  void set_identity(Identity const &identity);
+  uri_ = uri_string_stream.str();
+}
 
-  void AddXML(pugi::xml_node parent);
+void eBoks::Connection::URIBuilder::ServiceURIStream::Append(const std::string &string) {
+  *this << kURISplitter << string;
+}
 
- private:
-  int id_;
-  int secondary_id_;
-  std::string activation_code_;
-  std::string name_;
-  std::string passphrase_;
-  bool shared_;
+eBoks::Connection::URIBuilder& eBoks::Connection::URIBuilder::Login() {
+  service_uri_.Append(kSession);
 
-  Identity identity_;
-};
+  return *this;
+}
 
-}  // namespace eBoks
+std::string eBoks::Connection::URIBuilder::Build() {
+  std::string final_uri(uri_ + service_uri_.str());
 
-#endif  // EBOKS_USER_HPP_
+  // Reset the service URI
+  service_uri_.str("");
+
+  return final_uri;
+}

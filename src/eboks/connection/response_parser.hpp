@@ -25,49 +25,29 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef EBOKS_USER_HPP_
-#define EBOKS_USER_HPP_
+#ifndef EBOKS_CONNECTION_RESPONSE_PARSER_HPP_
+#define EBOKS_CONNECTION_RESPONSE_PARSER_HPP_
+
+#include <curl/curl.h>
 
 #include <string>
 
-#include "eboks/identity.hpp"
-#include "eboks/xml_constructor.hpp"
+#include "eboks/logon.hpp"
+#include "eboks/user.hpp"
 
 namespace eBoks {
+namespace Connection {
 
-class User : public XMLConstructor {
+class ResponseParser {
  public:
-  User();
-  User(std::string identity_number, std::string identity_type, std::string nationality,
-       std::string passphrase, std::string activation_code);
+  ResponseParser();
 
-  std::string activation_code() const;
-  void set_activation_code(std::string const &activation_code);
-
-  std::string name() const;
-  void set_name(std::string const &name);
-
-  std::string passphrase() const;
-  void set_passphrase(std::string const &passphrase);
-
-  bool IsShared();
-
-  Identity identity() const;
-  void set_identity(Identity const &identity);
-
-  void AddXML(pugi::xml_node parent);
+  size_t Parse(void *ptr, size_t size, size_t nmemb, void *stream);
 
  private:
-  int id_;
-  int secondary_id_;
-  std::string activation_code_;
-  std::string name_;
-  std::string passphrase_;
-  bool shared_;
-
-  Identity identity_;
 };
 
+}  // namespace Connection
 }  // namespace eBoks
 
-#endif  // EBOKS_USER_HPP_
+#endif  // EBOKS_CONNECTION_RESPONSE_PARSER_HPP_

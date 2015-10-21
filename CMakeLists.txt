@@ -10,6 +10,7 @@ option(test "Build all tests." OFF)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 find_package(curl)
+find_package(openssl)
 find_package(pugixml)
 
 ########################################################################
@@ -18,6 +19,7 @@ find_package(pugixml)
 include_directories(
     src
     ${libcurl_INCLUDE_DIRS}
+    ${openssl_INCLUDE_DIRS}
     ${pugixml_INCLUDE_DIRS}
     ${CPPUNIT_INCLUDE_DIRS}
 )
@@ -31,7 +33,7 @@ link_directories(
 file(GLOB_RECURSE SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
 add_library(eboks ${SRC_FILES})
-target_link_libraries(eboks ${libcurl_LIBRARIES} pugixml)
+target_link_libraries(eboks ${libcurl_LIBRARIES} ${openssl_LIBRARIES} pugixml)
 
 if (test)
   # This adds another subdirectory, which has 'project(gtest)'.

@@ -25,49 +25,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef EBOKS_USER_HPP_
-#define EBOKS_USER_HPP_
+#include "eboks/cryptographic_manager.hpp"
 
-#include <string>
+#include <openssl/sha.h>
 
-#include "eboks/identity.hpp"
-#include "eboks/xml_constructor.hpp"
+eBoks::CryptographicManager::CryptographicManager() {}
 
-namespace eBoks {
+std::string eBoks::CryptographicManager::SHA256(const std::string string) {
+  unsigned char hash[SHA256_DIGEST_LENGTH];
+  SHA256_CTX sha256;
+  SHA256_Init(&sha256);
+  SHA256_Update(&sha256, str.c_str(), str.size());
+  SHA256_Final(hash, &sha256);
+  stringstream ss;
+  for(int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+    ss << hex << setw(2) << setfill('0') << (int)hash[i];
+  }
 
-class User : public XMLConstructor {
- public:
-  User();
-  User(std::string identity_number, std::string identity_type, std::string nationality,
-       std::string passphrase, std::string activation_code);
-
-  std::string activation_code() const;
-  void set_activation_code(std::string const &activation_code);
-
-  std::string name() const;
-  void set_name(std::string const &name);
-
-  std::string passphrase() const;
-  void set_passphrase(std::string const &passphrase);
-
-  bool IsShared();
-
-  Identity identity() const;
-  void set_identity(Identity const &identity);
-
-  void AddXML(pugi::xml_node parent);
-
- private:
-  int id_;
-  int secondary_id_;
-  std::string activation_code_;
-  std::string name_;
-  std::string passphrase_;
-  bool shared_;
-
-  Identity identity_;
-};
-
-}  // namespace eBoks
-
-#endif  // EBOKS_USER_HPP_
+  return ss.str();
+}

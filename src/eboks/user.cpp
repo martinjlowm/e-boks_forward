@@ -32,6 +32,11 @@
 #include "pugixml.hpp"
 
 // Constructors
+eBoks::User::User()
+    : activation_code_(""),
+      passphrase_(""),
+      identity_("", "", "") {}
+
 eBoks::User::User(std::string identity_number, std::string identity_type,
                   std::string nationality, std::string passphrase,
                   std::string activation_code)
@@ -66,7 +71,7 @@ void eBoks::User::set_identity(Identity const &identity) {
 }
 
 // Actions
-void eBoks::User::AddXML(pugi::xml_node parent) {
+void eBoks::User::AddXML(const pugi::xml_node &parent) {
   pugi::xml_node node = parent.append_child("User");
 
   node.append_attribute("identity") = identity_.number().c_str();
