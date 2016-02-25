@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Martin Jesper Low Madsen
+ * Copyright (c) 2015-2016, Martin Jesper Low Madsen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,9 +33,10 @@
 #include <string>
 
 #include "eboks/application.hpp"
+#include "eboks/connection/uri_builder.hpp"
 
 eBoks::Connection::Handler::Handler(Application *app)
-    : app_(app), curl_(curl_easy_init()), uri_(),
+    : app_(app), curl_(curl_easy_init()),
       session_(this), request_builder_(curl_), response_parser_() {
   curl_easy_setopt(curl_, CURLOPT_READFUNCTION, response_parser_.Parse);
 }
@@ -45,7 +46,10 @@ eBoks::Connection::Session
 eBoks::Connection::Handler::session() const { return session_; }
 
 void eBoks::Connection::Handler::Login() {
-  request_builder_.At(uri_.Login().Build());
+  URIBuilder *uri = new URIBuilder();
+  request_builder_.At(uri->Login()->Build());
+  delete uri;
+
   request_builder_.WithLoginHeader(app_->time_manager(), app_->device_id());
   request_builder_.As(kPUT);
   request_builder_.WithLoginBody(logon_, app_, &app_.user());

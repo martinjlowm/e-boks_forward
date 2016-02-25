@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Martin Jesper Low Madsen
+ * Copyright (c) 2015-2016, Martin Jesper Low Madsen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ void eBoks::Connection::URIBuilder::ServiceURIStream::Append(const std::string &
   *this << kURISplitter << string;
 }
 
-eBoks::Connection::URIBuilder& eBoks::Connection::URIBuilder::Login() {
+eBoks::Connection::URIBuilder* eBoks::Connection::URIBuilder::Login() {
   service_uri_.Append(kSession);
 
   return *this;

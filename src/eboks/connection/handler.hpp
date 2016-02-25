@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Martin Jesper Low Madsen
+ * Copyright (c) 2015-2016, Martin Jesper Low Madsen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,6 @@
 #include "eboks/connection/request_builder.hpp"
 #include "eboks/connection/response_parser.hpp"
 #include "eboks/connection/session.hpp"
-#include "eboks/connection/uri_builder.hpp"
 
 namespace eBoks {
 
@@ -56,7 +55,6 @@ class Handler {
   Application *app_;
 
   CURL *curl_;
-  URIBuilder uri_;
 
   Session session_;
   RequestBuilder request_builder_;

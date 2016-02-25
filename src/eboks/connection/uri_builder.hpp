@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Martin Jesper Low Madsen
+ * Copyright (c) 2015-2016, Martin Jesper Low Madsen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ class URIBuilder {
  public:
   URIBuilder();
 
-  URIBuilder& Login();
+  URIBuilder* Login();
 
   std::string Build();
 
